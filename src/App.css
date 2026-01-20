@@ -1,0 +1,666 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+}
+
+.app {
+  max-width: 800px;
+  margin: 0 auto;
+  padding-bottom: 80px;
+  min-height: 100vh;
+}
+
+/* Firebase Badge */
+.firebase-badge {
+  color: #667eea;
+  font-size: 12px;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+/* Period Info */
+.period-info {
+  background: white;
+  padding: 12px 20px;
+  text-align: center;
+  font-size: 14px;
+  color: #667eea;
+  font-weight: bold;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* Import Details */
+.import-details {
+  margin: 20px 0;
+}
+
+.import-details p {
+  margin: 8px 0;
+  padding: 8px;
+  background: #f5f5f5;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.import-total {
+  background: #667eea !important;
+  color: white !important;
+  font-weight: bold !important;
+  margin-top: 15px !important;
+}
+
+.firebase-badge-small {
+  font-size: 14px;
+  margin-left: 5px;
+}
+
+/* Loading */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.loading-spinner {
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* Import Button */
+.import-btn {
+  width: 100%;
+  padding: 12px;
+  background: #4ECDC4;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* Login */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.login-box {
+  background: white;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  text-align: center;
+  min-width: 300px;
+}
+
+.login-box h1 {
+  margin-bottom: 30px;
+  color: #667eea;
+  font-size: 32px;
+}
+
+.login-input {
+  width: 100%;
+  padding: 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 16px;
+  margin-bottom: 20px;
+  transition: border-color 0.3s;
+}
+
+.login-input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.login-button {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.login-button:hover {
+  transform: scale(1.02);
+}
+
+/* Header */
+.header {
+  background: white;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header h1 {
+  color: #667eea;
+  font-size: 24px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.month-selector {
+  padding: 8px 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  max-height: 200px;
+}
+
+/* 모바일에서 select 드롭다운 높이 제한 */
+.month-selector option {
+  padding: 10px;
+}
+
+.settings-btn {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px;
+}
+
+/* Settings Panel */
+.settings-panel {
+  background: white;
+  padding: 20px;
+  margin: 0;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.settings-panel h3 {
+  margin-bottom: 15px;
+  color: #667eea;
+}
+
+.category-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.category-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #f5f5f5;
+  border-radius: 20px;
+  font-size: 14px;
+}
+
+.delete-btn-small {
+  background: #ff4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.add-category {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.add-category input {
+  flex: 1;
+  padding: 10px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+}
+
+.add-category button {
+  padding: 10px 20px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.close-settings {
+  width: 100%;
+  padding: 12px;
+  background: #e0e0e0;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Navigation */
+.nav-tabs {
+  display: flex;
+  background: white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.nav-tabs button {
+  flex: 1;
+  padding: 15px;
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s;
+}
+
+.nav-tabs button.active {
+  border-bottom-color: #667eea;
+  color: #667eea;
+  font-weight: bold;
+}
+
+/* Summary */
+.summary-container {
+  padding: 20px;
+}
+
+.summary-card {
+  background: white;
+  padding: 20px;
+  border-radius: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.summary-card h3 {
+  color: #667eea;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.summary-card h4 {
+  color: #888;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.big-amount {
+  font-size: 36px;
+  font-weight: bold;
+  color: #333;
+}
+
+.amount {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+
+.settlement {
+  font-size: 20px;
+  font-weight: bold;
+  color: #667eea;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+/* Charts */
+.chart-container {
+  padding: 20px;
+}
+
+.chart-section {
+  background: white;
+  padding: 20px;
+  border-radius: 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.chart-section h3 {
+  color: #667eea;
+  margin-bottom: 15px;
+}
+
+/* Expense List */
+.expense-list {
+  padding: 20px;
+}
+
+.expense-item {
+  background: white;
+  padding: 15px;
+  border-radius: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+}
+
+.expense-header {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.expense-date {
+  color: #888;
+  font-size: 12px;
+}
+
+.delete-btn {
+  background: #ff4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.expense-details h3 {
+  margin-bottom: 8px;
+  color: #333;
+  font-size: 18px;
+}
+
+.expense-meta {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.expense-person {
+  background: #667eea;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.expense-category {
+  background: #f0f0f0;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  color: #666;
+}
+
+.expense-memo {
+  font-size: 13px;
+  color: #666;
+  margin-top: 5px;
+  font-style: italic;
+}
+
+.expense-amount {
+  font-size: 24px;
+  font-weight: bold;
+  color: #667eea;
+  align-self: center;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: white;
+  font-size: 16px;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 20px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-content h2 {
+  color: #667eea;
+  margin-bottom: 20px;
+}
+
+.modal-content p {
+  margin-bottom: 10px;
+  color: #666;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 25px;
+}
+
+.cancel-btn {
+  flex: 1;
+  padding: 15px;
+  background: #e0e0e0;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.submit-btn {
+  flex: 1;
+  padding: 15px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* FAB */
+.fab {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  transition: transform 0.3s;
+  z-index: 999;
+}
+
+.fab:hover {
+  transform: scale(1.1);
+}
+
+/* Activity Log */
+.activity-container {
+  padding: 20px;
+}
+
+.activity-container h2 {
+  color: white;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.activity-list {
+  max-width: 100%;
+}
+
+.activity-item {
+  background: white;
+  padding: 15px;
+  border-radius: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.activity-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.activity-action {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: bold;
+  color: white;
+}
+
+.action-追加 {
+  background: #4CAF50;
+}
+
+.action-削除 {
+  background: #f44336;
+}
+
+.action-インポート {
+  background: #2196F3;
+}
+
+.activity-time {
+  color: #888;
+  font-size: 12px;
+}
+
+.activity-details {
+  padding-left: 10px;
+  border-left: 3px solid #667eea;
+}
+
+.activity-details p {
+  margin: 5px 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.activity-details strong {
+  color: #667eea;
+}
+
+/* Trend */
+.trend-container {
+  padding: 20px;
+}
+
+.trend-container h2 {
+  color: white;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .expense-item {
+    grid-template-columns: 1fr;
+  }
+  
+  .expense-amount {
+    text-align: right;
+  }
+  
+  .nav-tabs {
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  .nav-tabs button {
+    font-size: 12px;
+    padding: 12px 10px;
+  }
+}
