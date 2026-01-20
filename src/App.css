@@ -165,8 +165,9 @@ body {
 
 .header-actions {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .month-selector {
@@ -175,12 +176,42 @@ body {
   border-radius: 8px;
   font-size: 14px;
   cursor: pointer;
-  max-height: 200px;
+  max-height: 40px;
+  flex: 1;
+  min-width: 200px;
 }
 
-/* 모바일에서 select 드롭다운 높이 제한 */
+/* 드롭다운 옵션 스크롤 */
 .month-selector option {
   padding: 10px;
+}
+
+/* 이전/다음 버튼 */
+.month-nav-btn {
+  padding: 8px 15px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: bold;
+}
+
+.month-nav-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.month-nav-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.month-nav-btn:disabled {
+  background: linear-gradient(135deg, #ccc 0%, #999 100%);
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .settings-btn {

@@ -26,4 +26,4 @@ src/firebase.js
 
 # IDE
 .vscode/
-.idea/
+.idea//.firebase

@@ -242,7 +242,7 @@ function App() {
     return { himoTotal, azuTotal, total, half: total / 2, categoryStats };
   };
 
-  // 사용 가능한 급여일 정산 월 목록 생성 (최근 5개월만)
+  // 사용 가능한 급여일 정산 월 목록 생성 (전체)
   const getAvailableMonths = () => {
     if (expenses.length === 0) {
       // 데이터가 없으면 현재 월만 표시
@@ -261,10 +261,26 @@ function App() {
     const today = new Date().toISOString().split('T')[0];
     monthSet.add(getPayrollMonth(today));
     
-    // 정렬 (최신순) 후 최근 5개월만 반환
-    return Array.from(monthSet)
-      .sort((a, b) => b.localeCompare(a))
-      .slice(0, 5);
+    // 정렬 (최신순) - 전체 반환
+    return Array.from(monthSet).sort((a, b) => b.localeCompare(a));
+  };
+
+  // 이전 달로 이동
+  const goToPreviousMonth = () => {
+    const availableMonths = getAvailableMonths();
+    const currentIndex = availableMonths.indexOf(selectedMonth);
+    if (currentIndex < availableMonths.length - 1) {
+      setSelectedMonth(availableMonths[currentIndex + 1]);
+    }
+  };
+
+  // 다음 달로 이동
+  const goToNextMonth = () => {
+    const availableMonths = getAvailableMonths();
+    const currentIndex = availableMonths.indexOf(selectedMonth);
+    if (currentIndex > 0) {
+      setSelectedMonth(availableMonths[currentIndex - 1]);
+    }
   };
 
   // 月別推移データを取得
@@ -336,6 +352,13 @@ function App() {
       <header className="header">
         <h1>💰 支出明細 <span className="firebase-badge-small">🔥</span></h1>
         <div className="header-actions">
+          <button 
+            onClick={goToPreviousMonth} 
+            className="month-nav-btn"
+            disabled={getAvailableMonths().indexOf(selectedMonth) === getAvailableMonths().length - 1}
+          >
+            ◀
+          </button>
           <select 
             value={selectedMonth} 
             onChange={(e) => setSelectedMonth(e.target.value)}
@@ -350,6 +373,13 @@ function App() {
               return <option key={payrollMonth} value={payrollMonth}>{label}</option>;
             })}
           </select>
+          <button 
+            onClick={goToNextMonth} 
+            className="month-nav-btn"
+            disabled={getAvailableMonths().indexOf(selectedMonth) === 0}
+          >
+            ▶
+          </button>
           <button onClick={() => setShowSettings(!showSettings)} className="settings-btn">
             ⚙️
           </button>
