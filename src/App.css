@@ -61,6 +61,11 @@ body {
   margin-left: 5px;
 }
 
+/* 立て替え カテゴリ色 */
+.category-立て替え {
+  background-color: #FF9800;
+}
+
 /* Loading */
 .loading-container {
   display: flex;

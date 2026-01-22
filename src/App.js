@@ -13,7 +13,8 @@ const CATEGORY_COLORS = {
   'デート': '#FF69B4',
   '日用品': '#FFA07A',
   'その他❤️': '#9B59B6',
-  '日用品費': '#FFA07A'
+  '日用品費': '#FFA07A',
+  '立て替え': '#FF9800'  // オレンジ色で特別表示
 };
 
 // 担当者別の背景色
@@ -67,7 +68,7 @@ function App() {
   const [password, setPassword] = useState('');
   const [expenses, setExpenses] = useState([]);
   const [activityLog, setActivityLog] = useState([]);
-  const [categories, setCategories] = useState(['食費', '外食', 'デート', '日用品', 'その他❤️']);
+  const [categories, setCategories] = useState(['食費', '外食', 'デート', '日用品', 'その他❤️', '立て替え']);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [currentView, setCurrentView] = useState('list');
@@ -230,16 +231,87 @@ function App() {
 
   const getStats = () => {
     const filtered = getFilteredExpenses();
-    const himoTotal = filtered.filter(exp => exp.person === 'ひも').reduce((sum, exp) => sum + exp.amount, 0);
-    const azuTotal = filtered.filter(exp => exp.person === 'あづ').reduce((sum, exp) => sum + exp.amount, 0);
-    const total = himoTotal + azuTotal;
+    
+    // 일반 지출 합계 (立て替え 제외)
+    const himoNormalTotal = filtered
+      .filter(exp => exp.category !== '立て替え' && exp.person === 'ひも')
+      .reduce((sum, exp) => sum + exp.amount, 0);
+    
+    const azuNormalTotal = filtered
+      .filter(exp => exp.category !== '立て替え' && exp.person === 'あづ')
+      .reduce((sum, exp) => sum + exp.amount, 0);
+    
+    // 立て替え 금액 (표시용)
+    const himoTatekaeTotal = filtered
+      .filter(exp => exp.category === '立て替え' && exp.person === 'ひも')
+      .reduce((sum, exp) => sum + exp.amount, 0);
+    
+    const azuTatekaeTotal = filtered
+      .filter(exp => exp.category === '立て替え' && exp.person === 'あづ')
+      .reduce((sum, exp) => sum + exp.amount, 0);
+    
+    // 표시용 합계 (각자 입력한 것으로)
+    const himoTotal = himoNormalTotal + himoTatekaeTotal;
+    const azuTotal = azuNormalTotal + azuTatekaeTotal;
+    
+    // 정산 계산 (일반 지출만 반반)
+    const normalTotal = himoNormalTotal + azuNormalTotal;
+    const halfNormal = normalTotal / 2;
+    
+    // 일반 지출 기준 정산액
+    let settlementAmount = 0;
+    let settlementDirection = '';
+    
+    if (himoNormalTotal > azuNormalTotal) {
+      settlementAmount = himoNormalTotal - halfNormal;
+      settlementDirection = 'あづ → ひも';
+    } else if (azuNormalTotal > himoNormalTotal) {
+      settlementAmount = azuNormalTotal - halfNormal;
+      settlementDirection = 'ひも → あづ';
+    }
+    
+    // 立て替え 금액 조정
+    // あづ가 立て替え 입력 → ひも에게서 받아야 함 (정산액에서 빼기)
+    // ひも가 立て替え 입력 → あづ에게서 받아야 함 (정산액에 더하기)
+    const tatekaeAdjustment = azuTatekaeTotal - himoTatekaeTotal;
+    
+    if (settlementDirection === 'あづ → ひも') {
+      settlementAmount -= tatekaeAdjustment;
+      if (settlementAmount < 0) {
+        settlementAmount = Math.abs(settlementAmount);
+        settlementDirection = 'ひも → あづ';
+      }
+    } else if (settlementDirection === 'ひも → あづ') {
+      settlementAmount += tatekaeAdjustment;
+      if (settlementAmount < 0) {
+        settlementAmount = Math.abs(settlementAmount);
+        settlementDirection = 'あづ → ひも';
+      }
+    } else {
+      // 정산액이 0인 경우
+      if (tatekaeAdjustment > 0) {
+        settlementAmount = tatekaeAdjustment;
+        settlementDirection = 'ひも → あづ';
+      } else if (tatekaeAdjustment < 0) {
+        settlementAmount = Math.abs(tatekaeAdjustment);
+        settlementDirection = 'あづ → ひも';
+      }
+    }
     
     const categoryStats = categories.map(cat => ({
       name: cat,
       amount: filtered.filter(exp => exp.category === cat).reduce((sum, exp) => sum + exp.amount, 0)
     })).filter(stat => stat.amount > 0);
 
-    return { himoTotal, azuTotal, total, half: total / 2, categoryStats };
+    return { 
+      himoTotal, 
+      azuTotal, 
+      total: normalTotal, // 일반 지출만
+      half: halfNormal,   // 일반 지출의 반
+      categoryStats,
+      settlementAmount: Math.round(settlementAmount),
+      settlementDirection
+    };
   };
 
   // 사용 가능한 급여일 정산 월 목록 생성 (전체)
@@ -295,9 +367,27 @@ function App() {
       const { startDate, endDate } = getPayrollPeriod(payrollMonth);
       const monthExpenses = expenses.filter(exp => exp.date >= startDate && exp.date <= endDate);
       
-      const himoTotal = monthExpenses.filter(exp => exp.person === 'ひも').reduce((sum, exp) => sum + exp.amount, 0);
-      const azuTotal = monthExpenses.filter(exp => exp.person === 'あづ').reduce((sum, exp) => sum + exp.amount, 0);
-      const total = himoTotal + azuTotal;
+      // 일반 지출만 계산 (立て替え 제외)
+      const himoNormalTotal = monthExpenses
+        .filter(exp => exp.category !== '立て替え' && exp.person === 'ひも')
+        .reduce((sum, exp) => sum + exp.amount, 0);
+      
+      const azuNormalTotal = monthExpenses
+        .filter(exp => exp.category !== '立て替え' && exp.person === 'あづ')
+        .reduce((sum, exp) => sum + exp.amount, 0);
+      
+      // 立て替え 금액
+      const himoTatekaeTotal = monthExpenses
+        .filter(exp => exp.category === '立て替え' && exp.person === 'ひも')
+        .reduce((sum, exp) => sum + exp.amount, 0);
+      
+      const azuTatekaeTotal = monthExpenses
+        .filter(exp => exp.category === '立て替え' && exp.person === 'あづ')
+        .reduce((sum, exp) => sum + exp.amount, 0);
+      
+      const himoTotal = himoNormalTotal + himoTatekaeTotal;
+      const azuTotal = azuNormalTotal + azuTatekaeTotal;
+      const total = himoNormalTotal + azuNormalTotal; // 일반 지출만
       
       const categoryData = {};
       categories.forEach(cat => {
@@ -567,10 +657,8 @@ function App() {
           </div>
           <div className="summary-card">
             <h3>精算額</h3>
-            {stats.himoTotal > stats.azuTotal ? (
-              <p className="settlement">あづ → ひも: ¥{((stats.himoTotal - stats.azuTotal) / 2).toLocaleString()}</p>
-            ) : stats.azuTotal > stats.himoTotal ? (
-              <p className="settlement">ひも → あづ: ¥{((stats.azuTotal - stats.himoTotal) / 2).toLocaleString()}</p>
+            {stats.settlementAmount > 0 ? (
+              <p className="settlement">{stats.settlementDirection}: ¥{stats.settlementAmount.toLocaleString()}</p>
             ) : (
               <p className="settlement">精算なし</p>
             )}
@@ -628,6 +716,11 @@ function App() {
             const personColor = PERSON_COLORS[expense.person] || { background: '#f5f5f5', border: '#ccc' };
             const categoryColor = CATEGORY_COLORS[expense.category] || '#666';
             
+            // 立て替えの場合は実際の負担者を表示
+            const isProxy = expense.category === '立て替え';
+            const actualPayer = isProxy ? (expense.person === 'ひも' ? 'あづ' : 'ひも') : expense.person;
+            const actualPayerColor = PERSON_COLORS[actualPayer] || { background: '#f5f5f5', border: '#ccc' };
+            
             return (
               <div 
                 key={expense.firebaseId} 
@@ -650,6 +743,17 @@ function App() {
                     >
                       {expense.person}
                     </span>
+                    {isProxy && (
+                      <>
+                        <span style={{margin: '0 5px', fontSize: '12px'}}>→</span>
+                        <span 
+                          className="expense-person"
+                          style={{backgroundColor: actualPayerColor.border}}
+                        >
+                          {actualPayer} 負担
+                        </span>
+                      </>
+                    )}
                     <span 
                       className="expense-category"
                       style={{
