@@ -74,6 +74,7 @@ function App() {
   const [categories, setCategories] = useState(['食費', '外食', 'デート', '日用品', 'その他❤️', '立て替え']);
   const [remittanceCategories] = useState(['あづ', 'SMBC']); // 송금 카테고리
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editingExpense, setEditingExpense] = useState(null); // 수정 중인 지출
   const [showSettings, setShowSettings] = useState(false);
   const [currentView, setCurrentView] = useState('list');
   const [selectedMonth, setSelectedMonth] = useState('');
@@ -223,23 +224,51 @@ function App() {
 
   const handleAddExpense = async (e) => {
     e.preventDefault();
-    const expensesRef = ref(database, 'expenses');
-    const newExpense = {
-      id: Date.now(),
-      ...formData,
-      amount: parseFloat(formData.amount)
-    };
     
-    await push(expensesRef, newExpense);
-    
-    // アクティビティログに記録
-    await addActivityLog('追加', {
-      person: formData.person,
-      description: formData.description,
-      amount: formData.amount,
-      category: formData.category,
-      date: formData.date
-    });
+    if (editingExpense) {
+      // 수정 모드
+      const expenseRef = ref(database, `expenses/${editingExpense.firebaseId}`);
+      const updatedExpense = {
+        ...editingExpense,
+        ...formData,
+        amount: parseFloat(formData.amount),
+        id: editingExpense.id // 기존 ID 유지
+      };
+      
+      // firebaseId는 제외하고 저장
+      const { firebaseId, ...dataToSave } = updatedExpense;
+      await set(expenseRef, dataToSave);
+      
+      // アクティビティログに記録
+      await addActivityLog('編集', {
+        person: formData.person,
+        description: formData.description,
+        amount: formData.amount,
+        category: formData.category,
+        date: formData.date
+      });
+      
+      setEditingExpense(null);
+    } else {
+      // 추가 모드
+      const expensesRef = ref(database, 'expenses');
+      const newExpense = {
+        id: Date.now(),
+        ...formData,
+        amount: parseFloat(formData.amount)
+      };
+      
+      await push(expensesRef, newExpense);
+      
+      // アクティビティログに記録
+      await addActivityLog('追加', {
+        person: formData.person,
+        description: formData.description,
+        amount: formData.amount,
+        category: formData.category,
+        date: formData.date
+      });
+    }
     
     setFormData({
       date: new Date().toISOString().split('T')[0],
@@ -250,6 +279,19 @@ function App() {
       memo: ''
     });
     setShowAddForm(false);
+  };
+  
+  const handleEditExpense = (expense) => {
+    setEditingExpense(expense);
+    setFormData({
+      date: expense.date,
+      description: expense.description,
+      amount: expense.amount.toString(),
+      person: expense.person,
+      category: expense.category,
+      memo: expense.memo || ''
+    });
+    setShowAddForm(true);
   };
 
   const handleDeleteExpense = async (firebaseId, expense) => {
@@ -992,12 +1034,22 @@ function App() {
                 className="expense-item"
                 style={{
                   backgroundColor: personColor.background,
-                  borderLeft: `4px solid ${personColor.border}`
+                  borderLeft: `4px solid ${personColor.border}`,
+                  cursor: 'pointer'
                 }}
+                onClick={() => handleEditExpense(expense)}
               >
                 <div className="expense-header">
                   <span className="expense-date">{expense.date}</span>
-                  <button onClick={() => handleDeleteExpense(expense.firebaseId, expense)} className="delete-btn">×</button>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation(); // 부모 클릭 이벤트 방지
+                      handleDeleteExpense(expense.firebaseId, expense);
+                    }} 
+                    className="delete-btn"
+                  >
+                    ×
+                  </button>
                 </div>
                 <div className="expense-details">
                   <h3>{expense.description}</h3>
@@ -1042,9 +1094,12 @@ function App() {
       )}
 
       {showAddForm && (
-        <div className="modal-overlay" onClick={() => setShowAddForm(false)}>
+        <div className="modal-overlay" onClick={() => {
+          setShowAddForm(false);
+          setEditingExpense(null);
+        }}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h2>支出を追加</h2>
+            <h2>{editingExpense ? '支出を編集' : '支出を追加'}</h2>
             <form onSubmit={handleAddExpense}>
               <div className="form-group">
                 <label>日付</label>
@@ -1106,11 +1161,14 @@ function App() {
                 />
               </div>
               <div className="form-actions">
-                <button type="button" onClick={() => setShowAddForm(false)} className="cancel-btn">
+                <button type="button" onClick={() => {
+                  setShowAddForm(false);
+                  setEditingExpense(null);
+                }} className="cancel-btn">
                   キャンセル
                 </button>
                 <button type="submit" className="submit-btn">
-                  追加
+                  {editingExpense ? '保存' : '追加'}
                 </button>
               </div>
             </form>
@@ -1118,7 +1176,10 @@ function App() {
         </div>
       )}
 
-      <button className="fab" onClick={() => setShowAddForm(true)}>
+      <button className="fab" onClick={() => {
+        setEditingExpense(null);
+        setShowAddForm(true);
+      }}>
         ＋
       </button>
       </>
